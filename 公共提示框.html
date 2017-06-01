@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="css/mask.css">
+</head>
+<body>
+
+</body>
+<script type="text/javascript" src="jquery-1.11.1.min.js"></script>
+<script>
+
+    (function($){
+        $.extend({
+            "popup": function(options) {
+                options = $.extend({
+                    id: "",//弹出窗口id
+                    color: "",//弹出窗口color
+                    width: "",//宽度
+                    height: "",//高度
+                    isLock: true,//是否锁定屏幕
+                    title: "",//标题
+                    color1:"",
+                    content: ""//内容
+                }, options);//传入参数
+                var frame="";
+                if(options.title!=undefined&& options.title != "") {
+                    frame = '<div class="pop-title">' + options.title + '<img class="pop-close"></div>';
+                }
+                frame='<div id="'+options.id+'" class="pop-window">'+frame+
+                '<div class="pop-content" style="background-color:'+ options.color1+'">'+options.content+'</div>'+
+                '</div>';
+                if (options.isLock) {
+                    frame += '<div id="layermask" class="layer-mask"></div>';
+                }
+                if (!$("#" + options.id)[0]) {
+                    $("body").append(frame);
+                }
+                $("#" + options.id).css({'width': options.width, 'border-color': options.color});
+                $("#" + options.id + " .pop-title").css('background-color', options.color);
+                $("#" + options.id + " .pop-content").css('height', options.height);
+
+                var _z = 5000;//新对象的z-index
+                var _mv = false;//移动标记
+                var _x = 0, _y = 0;//鼠标离控件左上角的相对位置
+                var _obj = $("#" + options.id);//弹出窗口对象
+                var _wid = _obj.width();//弹出窗口宽度
+                var _hei = _obj.height();//弹出窗口高度
+                var _tit = _obj.find(".pop-title");//弹出窗口标题栏
+                var _cls = _obj.find(".pop-close");//弹出窗口关闭
+                var docE = document.documentElement;
+                var left=($(document).width()-_obj.width())/2;
+                var top =(docE.clientHeight-_obj.height())/2;
+                _obj.css({ "left": left, "top": top, "display": "block", "z-index": _z-(-1) });
+                _tit.mousedown(function(e) {
+                    _mv = true;
+                    _x = e.pageX-parseInt(_obj.css("left"));//获得左边位置
+                    _y = e.pageY-parseInt(_obj.css("top"));//获得上边位置
+                    _obj.css({ "z-index": _z-(-1) });//点击后开始拖动并透明显示
+                });
+                $(document).mouseup(function(e){
+                    _mv = false;
+                });
+
+                $(document).mousemove(function(e) {//窗口移动
+                    if(_mv){
+                        var x = e.pageX - _x;//移动时根据鼠标位置计算控件左上角的绝对位置
+                        if (x <= 0) {x = 0;};
+                        x = Math.min(docE.clientWidth-_wid,x)-5;
+                        var y = e.pageY - _y;
+                        if (y <= 0) {y = 0;};
+                        y = Math.min(docE.clientHeight-_hei,y)-5;
+                        _obj.css({
+                            top: y,
+                            left: x
+                        });//控件新位置
+                    }
+                });
+                _cls.on("click",function(){
+                    $("#" + options.id).detach();
+                    if ($("#layermask")) {
+                        $("#layermask").detach();
+                    }
+                });
+            }
+        });
+    })(jQuery);
+
+    function setFalse(a) {
+        var contentHtml = '<div class="contract-all bind-mask-success">'+
+                '<div class="contract-close"><span class="transtion-img"></span></div>'+
+                '<div class="contract-content contract-content2">'+
+                '<div class="mask-false"></div>'+
+                '<p>'+a+'</p>'+
+                '</div>'+
+                '</div>';
+        $.popup({
+            id:"modifyPassword4",
+            width:"420px",
+            height:"280px",
+            content:contentHtml
+        });
+//	setTimeout(closeMask,3000);
+        function closeMask() {
+            $(document).find("#modifyPassword4").detach();
+            if ($(document).find("#layermask")) {
+                $(document).find("#layermask").detach();
+            }
+        }
+        $(document).on("click",".transtion-img",function(){
+            $(document).find("#modifyPassword4").detach();
+            if ($(document).find("#layermask")) {
+                $(document).find("#layermask").detach();
+            }
+        })
+    }
+
+    setFalse("秦芳芳，你好!");
+</script>
+</html>
